@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  first_name    String
+  last_name     String
+  password      String
+  profile_image String
+  boards        Board[]
+}
+
+model Board {
+  id          String   @id @default(uuid())
+  name        String
+  background  String
+  belongs_to  User     @relation(fields: [belongs_to_id], references: [id])
+  belongs_to_id String
+  lists       List[]
+  labels      Label[]
+}
+
+model List {
+  id          String   @id @default(uuid())
+  name        String
+  board       Board    @relation(fields: [board_id], references: [id])
+  board_id    String
+  cards       Card[]
+}
+
+model Card {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  list        List     @relation(fields: [list_id], references: [id])
+  list_id     String
+  Label       CardLabel[]
+}
+
+model CardLabel {
+  id      String   @id @default(uuid())
+  card    Card     @relation(fields: [cardId], references: [id])
+  cardId  String
+  label   Label    @relation(fields: [labelId], references: [id])
+  labelId String
+
+  @@unique([cardId, labelId])
+}
+
+model Label {
+  id          String      @id @default(uuid())
+  name        String
+  color       String
+  board       Board    @relation(fields: [board_id], references: [id])
+  board_id    String
+  cards       CardLabel[]
+}
+
+// User:
+// - id (pk)
+// - email
+// - first_name
+// - last_name
+// - password
+// - profile_image
+
+// Board:
+// - id (pk)
+// - belongs_to (fk: User)
+// - name
+// - background
+
+// List:
+// - id (pk)
+// - name
+// - board (fk: Board)
+
+// Card:
+// - id (pk)
+// - title
+// - List (fk: List)
+// - Description
+// - Labels [fk: Label]
+
+// Label:
+//- id (pk)
+// - name
+// - color
+// - Board (fk: board)
